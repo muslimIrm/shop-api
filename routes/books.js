@@ -87,7 +87,7 @@ router.get("/books/search", asyncHandler(async (req, res) => {
 
 */
 
-router.get("/books/:id",validateUpdateBooks, asyncHandler(async (req, res) => {
+router.get("/books/:productId",validateUpdateBooks, asyncHandler(async (req, res) => {
     const { productId } = req.params
 
     const book = await Books.findById(productId)
@@ -107,7 +107,7 @@ router.get("/books/:id",validateUpdateBooks, asyncHandler(async (req, res) => {
     Update Book
 
 */
-router.put("/books/:id",validateCeartBooks, authenticateToken, asyncHandler(async (req, res) => {
+router.put("/books/:productId",validateCeartBooks, authenticateToken, asyncHandler(async (req, res) => {
     if (req.user.role !== "admin") {
         return res.status(403).json({ message: 'Unauthorized: You are not an administrator.' });
     }

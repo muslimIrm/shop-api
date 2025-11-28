@@ -87,7 +87,7 @@ router.get("/books/search", asyncHandler(async (req, res) => {
 
 */
 
-router.get("/books/:id", asyncHandler(async (req, res) => {
+router.get("/books/book/:id", asyncHandler(async (req, res) => {
     const { id } = req.params
 
     const book = await Books.findById(id)

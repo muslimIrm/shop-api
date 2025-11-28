@@ -17,12 +17,12 @@ router.post("/books/new", upload.single("image"), authenticateToken, asyncHandle
     if (req.user.role !== "admin") {
         return res.status(403).json({ message: 'Unauthorized: You are not an administrator.' });
     }
-    const file = req.file
     const { error } = validateCeartBooks(req.body)
     if (error || !file) {
         return res.status(400).json({ message: error.details[0].message })
     }
     const { title, description, price, author, pages } = req.body
+    const file = req.file
     const image = `${req.host}/upload/images/${file.filename}`
     const book = new Books({
         title: title,
@@ -87,10 +87,10 @@ router.get("/books/search", asyncHandler(async (req, res) => {
 
 */
 
-router.get("/books/:productId",validateUpdateBooks, asyncHandler(async (req, res) => {
-    const { productId } = req.params
+router.get("/books/:id", asyncHandler(async (req, res) => {
+    const { id } = req.params
 
-    const book = await Books.findById(productId)
+    const book = await Books.findById(id)
 
     if (book) {
 
@@ -107,7 +107,7 @@ router.get("/books/:productId",validateUpdateBooks, asyncHandler(async (req, res
     Update Book
 
 */
-router.put("/books/:productId",validateCeartBooks, authenticateToken, asyncHandler(async (req, res) => {
+router.put("/books/:id",upload.single("image"), authenticateToken, asyncHandler(async (req, res) => {
     if (req.user.role !== "admin") {
         return res.status(403).json({ message: 'Unauthorized: You are not an administrator.' });
     }
@@ -115,21 +115,25 @@ router.put("/books/:productId",validateCeartBooks, authenticateToken, asyncHandl
     if (error) {
         return res.status(400).json({ message: error.details[0].message })
     }
+    
+    const file = req.file
+    const image = `${req.host}/upload/images/${file.filename}`
     const { title, description, price, author, pages } = req.body
-    const { productId } = req.params
+    const { id } = req.params
 
     const data = {
         title: title,
         description: description,
         price: price,
         pages: pages,
-        author: author
+        author: author,
+        image
     }
 
-    const book = await Books.findById(productId)
+    const book = await Books.findById(id)
 
     if (book) {
-        const booksUpdated = await Books.findByIdAndUpdate(productId, { $set: data }, { new: true })
+        const booksUpdated = await Books.findByIdAndUpdate(id, { $set: data }, { new: true })
 
         res.status(200).json(booksUpdated)
     } else {
@@ -155,9 +159,9 @@ router.delete("/books/:id", authenticateToken, asyncHandler(async (req, res) => 
 
     if (book) {
         await Books.findByIdAndDelete(id)
-        res.status(200).json({ message: "book has been deleted successfully" })
+        return res.status(200).json({ message: "book has been deleted successfully" })
     } else {
-        res.status(404).json({ message: "Book not found." })
+        return res.status(404).json({ message: "Book not found." })
     }
 
 }))

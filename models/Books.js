@@ -12,7 +12,7 @@ const BooksSchema = new mongoose.Schema({
         type: String,
         required: true,
         minlength: 15,
-        maxlength: 1000,
+        maxlength: 3000,
     },
     price: {
         type: Number,
@@ -45,7 +45,7 @@ const Books = mongoose.model("Books", BooksSchema)
 const validateCeartBooks = (object) => {
     const schema = Joi.object({
         title: Joi.string().min(2).max(50).required(),
-        description: Joi.string().min(15).max(1000).required(),
+        description: Joi.string().min(15).max(3000).required(),
         price: Joi.number().min(0).max(1000).required(),
         pages: Joi.number().integer().min(1).max(1400).required(),
         author: Joi.string().min(3).max(50).required(),

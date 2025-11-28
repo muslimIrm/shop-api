@@ -88,7 +88,7 @@ router.get("/books/search", asyncHandler(async (req, res) => {
 */
 
 router.get("/books/:id",validateUpdateBooks, asyncHandler(async (req, res) => {
-    const { idproductId } = req.params
+    const { productId } = req.params
 
     const book = await Books.findById(productId)
 
@@ -107,8 +107,8 @@ router.get("/books/:id",validateUpdateBooks, asyncHandler(async (req, res) => {
     Update Book
 
 */
-router.put("/books/:id", authenticateToken, asyncHandler(async (req, res) => {
-    if (!req.user.role === "admin") {
+router.put("/books/:id",validateCeartBooks, authenticateToken, asyncHandler(async (req, res) => {
+    if (req.user.role !== "admin") {
         return res.status(403).json({ message: 'Unauthorized: You are not an administrator.' });
     }
     const { error } = validateUpdateBooks(req.body)
@@ -116,7 +116,7 @@ router.put("/books/:id", authenticateToken, asyncHandler(async (req, res) => {
         return res.status(400).json({ message: error.details[0].message })
     }
     const { title, description, price, author, pages } = req.body
-    const { id } = req.params
+    const { productId } = req.params
 
     const data = {
         title: title,
@@ -126,10 +126,10 @@ router.put("/books/:id", authenticateToken, asyncHandler(async (req, res) => {
         author: author
     }
 
-    const book = await Books.findById(id)
+    const book = await Books.findById(productId)
 
     if (book) {
-        const booksUpdated = await Books.findByIdAndUpdate(id, { $set: data }, { new: true })
+        const booksUpdated = await Books.findByIdAndUpdate(productId, { $set: data }, { new: true })
 
         res.status(200).json(booksUpdated)
     } else {

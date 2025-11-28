@@ -13,12 +13,8 @@ var jwt = require('jsonwebtoken');
     Creat/Post New Product
 
 */
-router.get("/admin", asyncHandler((req, res) => {
-    const token = jwt.sign({ role: "admin" }, process.env.SECRET)
-    res.json({ token })
-}))
 router.post("/books/new", upload.single("image"), authenticateToken, asyncHandler(async (req, res) => {
-    if (!req.user.role === "admin") {
+    if (req.user.role !== "admin") {
         return res.status(403).json({ message: 'Unauthorized: You are not an administrator.' });
     }
     const file = req.file

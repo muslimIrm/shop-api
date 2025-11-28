@@ -87,10 +87,10 @@ router.get("/books/search", asyncHandler(async (req, res) => {
 
 */
 
-router.get("/books/:id", asyncHandler(async (req, res) => {
-    const { id } = req.params
+router.get("/books/:id",validateUpdateBooks, asyncHandler(async (req, res) => {
+    const { idproductId } = req.params
 
-    const book = await Books.findById(id)
+    const book = await Books.findById(productId)
 
     if (book) {
 

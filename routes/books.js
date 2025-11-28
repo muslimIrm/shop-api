@@ -146,7 +146,7 @@ router.put("/books/:productId",validateCeartBooks, authenticateToken, asyncHandl
 */
 
 router.delete("/books/:id", authenticateToken, asyncHandler(async (req, res) => {
-    if (!req.user.role === "admin") {
+    if (req.user.role !== "admin") {
         return res.status(403).json({ message: 'Unauthorized: You are not an administrator.' });
     }
     const { id } = req.params

@@ -17,12 +17,12 @@ router.post("/books/new", upload.single("image"), authenticateToken, asyncHandle
     if (req.user.role !== "admin") {
         return res.status(403).json({ message: 'Unauthorized: You are not an administrator.' });
     }
+    const file = req.file
     const { error } = validateCeartBooks(req.body)
     if (error || !file) {
         return res.status(400).json({ message: error.details[0].message })
     }
     const { title, description, price, author, pages } = req.body
-    const file = req.file
     const image = `${req.host}/upload/images/${file.filename}`
     const book = new Books({
         title: title,

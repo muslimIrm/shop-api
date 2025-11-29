@@ -26,13 +26,13 @@ router.post("/new-cart", vaildateObjectIdBook, asyncHandler(async (req, res) => 
         ]
 
     })
-    const result = await n.save().populate("products.product")
+    const result = await n.save()
     const token = jwt.sign({ id: result._id, role: "user" }, process.env.SECRET)
-    res.json({ YourCart: result, token })
+    res.json({ YourCart: await result.populate("products.product"), token })
 }))
 
 router.get("/carts/", authenticateToken, asyncHandler(async (req, res) => {
-    if (req.user.role != "admin") {
+    if (req.user.role !== "admin") {
         return res.status(403).json({message: 'Unauthorized: You are not an administrator.'});
 
     }
@@ -114,7 +114,7 @@ router.delete("/carts/my-cart/:productId",authenticateToken, vaildateObjectIdCar
         }
     }, { new: true }).populate("products.product")
     
-    res.json({ message: "Product has been deleted.", data: product })
+    res.json({ message: "Product has been deleted.", data: deleteProduct })
 }))
 
 module.exports = router

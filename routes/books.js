@@ -87,9 +87,11 @@ router.get("/books/search", asyncHandler(async (req, res) => {
 
 */
 
-router.get("/books/book/:id", asyncHandler(async (req, res) => {
+router.get("/books/:id", asyncHandler(async (req, res) => {
     const { id } = req.params
-
+    if(!mongoose.Types.ObjectId.isValid(id)){
+        return res.status(400).json({message: "Id is not Valid."})
+    }
     const book = await Books.findById(id)
 
     if (book) {
@@ -120,7 +122,10 @@ router.put("/books/:id",upload.single("image"), authenticateToken, asyncHandler(
     const image = `${req.host}/upload/images/${file.filename}`
     const { title, description, price, author, pages } = req.body
     const { id } = req.params
-
+    
+    if(!mongoose.Types.ObjectId.isValid(id)){
+        return res.status(400).json({message: "Id is not Valid."})
+    }
     const data = {
         title: title,
         description: description,
@@ -154,7 +159,10 @@ router.delete("/books/:id", authenticateToken, asyncHandler(async (req, res) => 
         return res.status(403).json({ message: 'Unauthorized: You are not an administrator.' });
     }
     const { id } = req.params
-
+    
+    if(!mongoose.Types.ObjectId.isValid(id)){
+        return res.status(400).json({message: "Id is not Valid."})
+    }
     const book = await Books.findById(id)
 
     if (book) {

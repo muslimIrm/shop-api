@@ -7,17 +7,19 @@ const { Books } = require("../models/Books")
 const vaildateObjectIdCart = asyncHandler(async (req, res, next) => {
 
     const { id } = req.user;
-    if (mongoose.Types.ObjectId.isValid(id)) {
-
-        const cart = await CartUser.findById(id)
-        if (!cart) {
-
-            return res.status(404).json({ message: "User not found" })
-        }
-    } else {
-
-        return res.json({ message: "Invalid ID" })
+    if (!id) {
+        return res.status(400).json({ message: "User ID is required" });
     }
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: "Invalid book ID format" });
+    }
+
+    const CartUserCheck = await CartUser.findById(id);
+    if (!CartUserCheck) {
+        return res.status(404).json({ message: "User not found" });
+    }
+    
 
     next()
 })
@@ -25,7 +27,7 @@ const vaildateObjectIdCart = asyncHandler(async (req, res, next) => {
 
 const vaildateObjectIdBook = asyncHandler(async (req, res, next) => {
 
-    const { productId } = req.params;
+    const { productId } = req.body;
     console.log(productId)
     if (!productId) {
         return res.status(400).json({ message: "Book ID is required" });
@@ -40,8 +42,6 @@ const vaildateObjectIdBook = asyncHandler(async (req, res, next) => {
         return res.status(404).json({ message: "Book not found" });
     }
     
-    // احفظ الـ book في ال request لاستخدامه لاحقاً
-    req.book = productCheck;
     next();
 
 })

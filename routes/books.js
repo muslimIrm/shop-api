@@ -47,10 +47,23 @@ router.post("/books/new", upload.single("image"), authenticateToken, asyncHandle
 router.get("/books/", asyncHandler(async (req, res) => {
     const limit = parseInt(req.query.limit) || 5;
     const page = parseInt(req.query.page) <= 1 ? parseInt(req.query.page) : 1 || 1;
-
-
+    const sortType = req.query.sort || "last"
+    let result;
     const offset = (page - 1) * limit
-    const result = await Books.find().skip(offset).limit(limit)
+    if (sortType === "lastBooks") {
+        result = await Books.find().skip(offset).limit(limit).sort({_id: -1})
+
+    }else if(sortType === "lessPrice"){
+        result = await Books.find().skip(offset).limit(limit).sort({price: 1})
+
+    } else if(sortType === "highPrice"){
+        result = await Books.find().skip(offset).limit(limit).sort({price: -1})
+
+    }else{
+        return res.status(404).json({message: "This is False Sort Type."})
+
+    }
+
     const totalProducts = await Books.countDocuments();
     const totalPages = Math.ceil(totalProducts / limit)
     res.json({
@@ -69,7 +82,7 @@ router.get("/books/search", asyncHandler(async (req, res) => {
 
     const limit = parseInt(req.query.limit) || 5;
     const page = parseInt(req.query.page) <= 1 ? parseInt(req.query.page) : 1 || 1;
-    const title = req.query.title? req.query.title.trim() : false
+    const title = req.query.title ? req.query.title.trim() : false
     const offset = (page - 1) * limit
     if (!title) {
         return res.status(400).json({
@@ -77,7 +90,7 @@ router.get("/books/search", asyncHandler(async (req, res) => {
             error: "MISSING_TITLE"
         });
     }
-    const result = await Books.find({title: {$regex: title, $options: "i"}}).skip(offset).limit(limit)
+    const result = await Books.find({ title: { $regex: title, $options: "i" } }).skip(offset).limit(limit)
     res.status(200).json(result)
 }))
 
@@ -89,8 +102,8 @@ router.get("/books/search", asyncHandler(async (req, res) => {
 
 router.get("/books/:id", asyncHandler(async (req, res) => {
     const { id } = req.params
-    if(!mongoose.Types.ObjectId.isValid(id)){
-        return res.status(400).json({message: "Id is not Valid."})
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: "Id is not Valid." })
     }
     const book = await Books.findById(id)
 
@@ -109,7 +122,7 @@ router.get("/books/:id", asyncHandler(async (req, res) => {
     Update Book
 
 */
-router.put("/books/:id",upload.single("image"), authenticateToken, asyncHandler(async (req, res) => {
+router.put("/books/:id", upload.single("image"), authenticateToken, asyncHandler(async (req, res) => {
     if (req.user.role !== "admin") {
         return res.status(403).json({ message: 'Unauthorized: You are not an administrator.' });
     }
@@ -117,14 +130,14 @@ router.put("/books/:id",upload.single("image"), authenticateToken, asyncHandler(
     if (error) {
         return res.status(400).json({ message: error.details[0].message })
     }
-    
+
     const file = req.file
     const image = `${req.host}/upload/images/${file.filename}`
     const { title, description, price, author, pages } = req.body
     const { id } = req.params
-    
-    if(!mongoose.Types.ObjectId.isValid(id)){
-        return res.status(400).json({message: "Id is not Valid."})
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: "Id is not Valid." })
     }
     const data = {
         title: title,
@@ -159,9 +172,9 @@ router.delete("/books/:id", authenticateToken, asyncHandler(async (req, res) => 
         return res.status(403).json({ message: 'Unauthorized: You are not an administrator.' });
     }
     const { id } = req.params
-    
-    if(!mongoose.Types.ObjectId.isValid(id)){
-        return res.status(400).json({message: "Id is not Valid."})
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: "Id is not Valid." })
     }
     const book = await Books.findById(id)
 

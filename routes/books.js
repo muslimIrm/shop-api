@@ -46,21 +46,22 @@ router.post("/books/new", upload.single("image"), authenticateToken, asyncHandle
 
 router.get("/books/", asyncHandler(async (req, res) => {
     const limit = parseInt(req.query.limit) || 5;
-    const page = parseInt(req.query.page) <= 1 ? parseInt(req.query.page) : 1 || 1;
+    const page = parseInt(req.query.page) <= 1 ? 1 : parseInt(req.query.page)  || 1;
     const sortType = req.query.sort || "last"
     let result;
     const offset = (page - 1) * limit
     if (sortType === "lastBooks") {
-        result = await Books.find().skip(offset).limit(limit).sort({_id: -1})
+        result = await Books.find().skip(offset).limit(limit).sort({ _id: -1 })
 
-    }else if(sortType === "lessPrice"){
-        result = await Books.find().skip(offset).limit(limit).sort({price: 1})
+    } else if (sortType === "lessPrice") {
+        result = await Books.find().skip(offset).limit(limit).sort({ price: 1 })
 
-    } else if(sortType === "highPrice"){
-        result = await Books.find().skip(offset).limit(limit).sort({price: -1})
+    } else if (sortType === "highPrice") {
 
-    }else{
-        return res.status(404).json({message: "This is False Sort Type."})
+        result = await Books.find().skip(offset).limit(limit).sort({ price: -1 })
+
+    } else {
+        return res.status(404).json({ message: "This is False Sort Type." })
 
     }
 
